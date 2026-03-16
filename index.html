@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>理論値難易度チェッカー</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .jacket { transition: all 0.2s; cursor: pointer; }
+        .completed { opacity: 0.3; filter: grayscale(100%); }
+        .grid-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 10px; }
+    </style>
+</head>
+<body class="bg-gray-900 text-white p-5">
+    <h1 class="text-2xl font-bold mb-4">理論値難易度チェッカー</h1>
+    <div id="stats" class="mb-4 text-xl text-yellow-400">達成数: 0 / 0</div>
+    
+    <div id="checker-grid" class="grid-container">
+        </div>
+
+    <script>
+        // 1. 楽曲データの定義 (ここに対象の曲を追加していきます)
+        const songData = [
+            { id: 1, title: "曲名A", lv: "15.4", img: "sample.png" },
+            //{ id: 2, title: "曲名B", lv: "15.2", img: "https://via.placeholder.com/150" },
+            // ... ツイートの情報をここに追加
+        ];
+
+        // 2. ローカルストレージから保存された状態を読み込む
+        let savedStatus = JSON.parse(localStorage.getItem('my_achievements')) || {};
+
+        const grid = document.getElementById('checker-grid');
+        const stats = document.getElementById('stats');
+
+        function updateStats() {
+            const completedCount = Object.values(savedStatus).filter(v => v).length;
+            stats.innerText = `達成数: ${completedCount} / ${songData.length}`;
+        }
+
+        // 3. ジャケットの生成
+        songData.forEach(song => {
+            const img = document.createElement('img');
+            img.src = song.img;
+            img.alt = song.title;
+            img.className = 'jacket w-full aspect-square object-cover rounded shadow-lg';
+            if (savedStatus[song.id]) img.classList.add('completed');
+
+            img.onclick = () => {
+                img.classList.toggle('completed');
+                savedStatus[song.id] = img.classList.contains('completed');
+                localStorage.setItem('my_achievements', JSON.stringify(savedStatus));
+                updateStats();
+            };
+
+            grid.appendChild(img);
+        });
+
+        updateStats();
+    </script>
+</body>
+</html>
